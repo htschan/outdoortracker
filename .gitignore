@@ -1,3 +1,8 @@
+# Environment variables
+.env
+.env.*
+!.env.example
+
 # Python
 __pycache__/
 *.py[cod]
@@ -19,7 +24,6 @@ wheels/
 *.egg-info/
 .installed.cfg
 *.egg
-.env
 .venv
 env/
 venv/

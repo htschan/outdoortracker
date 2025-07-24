@@ -2,14 +2,18 @@
 
 A real-time outdoor tracking application that allows users to share their location during outdoor activities like hiking or cycling.
 
+![Outdoor Tracker](https://via.placeholder.com/800x400?text=Outdoor+Tracker)
+
 ## Features
 
-- Real-time location tracking and sharing
-- Mobile-friendly Progressive Web App (PWA)
-- OpenStreetMap integration
-- User authentication with email verification
-- Admin approval for new users
-- Docker containerization for easy deployment
+- **Real-time location tracking and sharing** - Track your activities and share them with friends
+- **Live map view** - See where all active users are in real-time
+- **Mobile-friendly Progressive Web App (PWA)** - Works on all devices with an app-like experience
+- **OpenStreetMap integration** - High-quality maps without any API key requirements
+- **User authentication with email verification** - Secure account creation process
+- **Admin approval for new users** - Control who can join your instance
+- **User management dashboard** - Admins can approve, activate/deactivate, and delete users
+- **Docker containerization for easy deployment** - Simple setup in any environment
 
 ## Tech Stack
 
@@ -42,6 +46,7 @@ The application is designed to run completely in Docker containers. No local ins
 
 - Docker
 - Docker Compose
+- Git
 
 ### Running the Application
 
@@ -57,7 +62,7 @@ This script will guide you through setting up either a development or production
 
 1. Clone the repository:
    ```bash
-   git clone <repository-url>
+   git clone https://github.com/htschan/outdoortracker.git
    cd outdoortracker
    ```
 
@@ -66,14 +71,49 @@ This script will guide you through setting up either a development or production
    cp .env.example .env
    ```
 
-3. Start the application:
+3. Configure environment variables:
+   ```bash
+   # Edit the .env file with your settings
+   # At minimum, set DATABASE_URL, SECRET_KEY, JWT_SECRET_KEY
+   nano .env
+   ```
+
+4. Start the application:
    ```bash
    docker-compose up -d
    ```
 
-3. Access the application:
+5. Initialize the database with test users:
+   ```bash
+   docker-compose exec backend python init_db.py
+   ```
+
+6. Access the application:
    - Frontend: http://localhost:8080
    - Backend API: http://localhost:5000/api
+
+### Default Admin Credentials
+
+After running the database initialization script, you can log in with:
+- Email: outdoortracker@sorawit.ch
+- Password: Axil&311
+
+### Production Deployment
+
+For production deployment, use the production Docker Compose file:
+
+1. Configure production environment:
+   ```bash
+   cp .env.example .env.prod
+   nano .env.prod
+   ```
+
+2. Start production services:
+   ```bash
+   docker-compose -f docker-compose.prod.yml --env-file .env.prod up -d
+   ```
+
+3. Set up HTTPS with a reverse proxy like Nginx or Traefik in front of the application.
 
 ## Project Structure
 
@@ -133,3 +173,56 @@ The application supports two user roles:
 2. **Admin**: Can manage and approve users
 
 New users must verify their email and be approved by an admin before accessing the application.
+
+## Contributing
+
+If you would like to contribute to this project, please follow these steps:
+
+1. Fork the repository on GitHub
+2. Clone your fork: `git clone https://github.com/YOUR_USERNAME/outdoortracker.git`
+3. Create a new branch (`git checkout -b feature/your-feature`)
+4. Make your changes
+5. Run tests to ensure functionality
+6. Commit your changes (`git commit -m 'Add some feature'`)
+7. Push to the branch (`git push origin feature/your-feature`)
+8. Open a Pull Request on GitHub
+
+### Code Style Guidelines
+
+- Backend: Follow PEP 8 Python style guide
+- Frontend: Follow Vue.js style guide and use ESLint configuration
+
+### Development Process
+
+1. Create an issue for the feature or bug you're working on
+2. Reference the issue in your pull request
+3. Add appropriate tests for your changes
+4. Update documentation as needed
+
+## License
+
+This project is licensed under the MIT License - see below for details:
+
+```
+MIT License
+
+Copyright (c) 2023 Hans Schanowitz
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+```
