@@ -44,8 +44,9 @@ It performs security checks including:
 
 To use these workflows, you need to set up the following secrets in your GitHub repository:
 
-1. `DOCKERHUB_USERNAME`: Your Docker Hub username
-2. `DOCKERHUB_TOKEN`: A Docker Hub personal access token
+1. `MYREG_URL`: Your private registry URL (e.g., registry.example.com)
+2. `MYREG_USERNAME`: Your registry username
+3. `MYREG_TOKEN`: Your registry authentication token or password
 
 ## Setting Up Secrets
 

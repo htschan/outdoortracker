@@ -33,11 +33,11 @@ fi
 # Build or pull images
 echo "Building or pulling Docker images..."
 
-if [ -n "$DOCKER_REGISTRY" ]; then
+if [ -n "$MYREG_URL" ]; then
     # Pull from registry
-    echo "Pulling images from $DOCKER_REGISTRY..."
-    docker pull ${DOCKER_REGISTRY}outdoortracker-frontend:${TAG:-latest}
-    docker pull ${DOCKER_REGISTRY}outdoortracker-backend:${TAG:-latest}
+    echo "Pulling images from $MYREG_URL..."
+    docker pull ${MYREG_URL}/outdoortracker-frontend:${TAG:-latest}
+    docker pull ${MYREG_URL}/outdoortracker-backend:${TAG:-latest}
 else
     # Build locally
     echo "Building images locally..."

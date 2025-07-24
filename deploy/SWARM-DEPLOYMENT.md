@@ -48,6 +48,7 @@ This guide explains how to deploy the Outdoor Tracker application on a Docker Sw
 
 3. Configure the following important settings:
    - `DOMAIN`: Your domain name (e.g., outdoortracker.example.com)
+   - `MYREG_URL`: Your private registry URL (without http/https prefix)
    - `DB_PASSWORD`: A secure password for the PostgreSQL database
    - `SECRET_KEY` and `JWT_SECRET_KEY`: Secure random strings for encryption
    - `MAIL_*`: Email server configuration

@@ -5,7 +5,7 @@ version: '3.8'
 
 services:
   frontend:
-    image: ${DOCKER_REGISTRY:-}outdoortracker-frontend:${TAG:-latest}
+    image: ${MYREG_URL:-}outdoortracker-frontend:${TAG:-latest}
     networks:
       - frontend
     deploy:
@@ -32,7 +32,7 @@ services:
       retries: 3
 
   backend:
-    image: ${DOCKER_REGISTRY:-}outdoortracker-backend:${TAG:-latest}
+    image: ${MYREG_URL:-}outdoortracker-backend:${TAG:-latest}
     networks:
       - backend
       - frontend
