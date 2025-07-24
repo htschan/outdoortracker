@@ -14,6 +14,7 @@ A real-time outdoor tracking application that allows users to share their locati
 - **Admin approval for new users** - Control who can join your instance
 - **User management dashboard** - Admins can approve, activate/deactivate, and delete users
 - **Docker containerization for easy deployment** - Simple setup in any environment
+- **CI/CD with GitHub Actions** - Automated testing, security scanning, and deployment
 
 ## Tech Stack
 
@@ -198,6 +199,16 @@ If you would like to contribute to this project, please follow these steps:
 2. Reference the issue in your pull request
 3. Add appropriate tests for your changes
 4. Update documentation as needed
+
+## Continuous Integration and Deployment
+
+This project uses GitHub Actions for automated testing, security scanning, and deployment:
+
+- **Build and Test**: Runs on every push and pull request
+- **Security Scan**: Checks for vulnerabilities in code and dependencies
+- **Deployment**: Automatically deploys to production when changes are merged to main
+
+For more information on the CI/CD setup, see [GitHub Actions Documentation](docs/github-actions.md)
 
 ## License
 
