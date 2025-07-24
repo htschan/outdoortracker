@@ -1,0 +1,161 @@
+version: '3.8'
+
+# Outdoor Tracker Docker Swarm stack configuration
+# Use with: docker stack deploy -c swarm-stack.yml outdoortracker
+
+services:
+  frontend:
+    image: ${DOCKER_REGISTRY:-}outdoortracker-frontend:${TAG:-latest}
+    networks:
+      - frontend
+    deploy:
+      replicas: 2
+      update_config:
+        parallelism: 1
+        order: start-first
+        failure_action: rollback
+        delay: 10s
+      restart_policy:
+        condition: on-failure
+        delay: 5s
+        max_attempts: 3
+      labels:
+        - "traefik.enable=true"
+        - "traefik.http.routers.outdoortracker.rule=Host(`${DOMAIN:-outdoortracker.example.com}`)"
+        - "traefik.http.routers.outdoortracker.entrypoints=websecure"
+        - "traefik.http.routers.outdoortracker.tls.certresolver=letsencrypt"
+        - "traefik.http.services.outdoortracker.loadbalancer.server.port=80"
+    healthcheck:
+      test: ["CMD", "wget", "--spider", "--quiet", "http://localhost:80"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  backend:
+    image: ${DOCKER_REGISTRY:-}outdoortracker-backend:${TAG:-latest}
+    networks:
+      - backend
+      - frontend
+    environment:
+      - DATABASE_URL=postgresql://${DB_USER:-postgres}:${DB_PASSWORD:-postgres}@db:5432/${DB_NAME:-outdoortracker}
+      - SECRET_KEY=${SECRET_KEY:-default_secret_key_change_in_production}
+      - JWT_SECRET_KEY=${JWT_SECRET_KEY:-default_jwt_secret_key_change_in_production}
+      - MAIL_SERVER=${MAIL_SERVER:-smtp.example.com}
+      - MAIL_PORT=${MAIL_PORT:-587}
+      - MAIL_USE_TLS=${MAIL_USE_TLS:-true}
+      - MAIL_USERNAME=${MAIL_USERNAME:-mail_user}
+      - MAIL_PASSWORD=${MAIL_PASSWORD:-mail_password}
+      - MAIL_DEFAULT_SENDER=${MAIL_DEFAULT_SENDER:-noreply@example.com}
+      - FLASK_ENV=${FLASK_ENV:-production}
+    deploy:
+      replicas: 2
+      update_config:
+        parallelism: 1
+        delay: 10s
+        order: start-first
+        failure_action: rollback
+      restart_policy:
+        condition: on-failure
+        delay: 5s
+        max_attempts: 3
+      labels:
+        - "traefik.enable=true"
+        - "traefik.http.routers.outdoortracker-api.rule=Host(`${DOMAIN:-outdoortracker.example.com}`) && PathPrefix(`/api`)"
+        - "traefik.http.routers.outdoortracker-api.entrypoints=websecure"
+        - "traefik.http.routers.outdoortracker-api.tls.certresolver=letsencrypt"
+        - "traefik.http.services.outdoortracker-api.loadbalancer.server.port=5000"
+        - "traefik.http.routers.outdoortracker-socket.rule=Host(`${DOMAIN:-outdoortracker.example.com}`) && PathPrefix(`/socket.io`)"
+        - "traefik.http.routers.outdoortracker-socket.entrypoints=websecure"
+        - "traefik.http.routers.outdoortracker-socket.tls.certresolver=letsencrypt"
+        - "traefik.http.services.outdoortracker-socket.loadbalancer.server.port=5000"
+    depends_on:
+      - db
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:5000/api/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
+
+  db:
+    image: postgres:14-alpine
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    environment:
+      - POSTGRES_PASSWORD=${DB_PASSWORD:-postgres}
+      - POSTGRES_USER=${DB_USER:-postgres}
+      - POSTGRES_DB=${DB_NAME:-outdoortracker}
+    networks:
+      - backend
+    deploy:
+      replicas: 1
+      placement:
+        constraints:
+          - node.labels.db == true
+      restart_policy:
+        condition: on-failure
+        delay: 5s
+        max_attempts: 3
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USER:-postgres}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+
+  traefik:
+    image: traefik:v2.9
+    command:
+      - "--api.dashboard=true"
+      - "--api.insecure=false"
+      - "--providers.docker=true"
+      - "--providers.docker.swarmMode=true"
+      - "--providers.docker.exposedbydefault=false"
+      - "--entrypoints.web.address=:80"
+      - "--entrypoints.websecure.address=:443"
+      - "--certificatesresolvers.letsencrypt.acme.httpchallenge=true"
+      - "--certificatesresolvers.letsencrypt.acme.httpchallenge.entrypoint=web"
+      - "--certificatesresolvers.letsencrypt.acme.email=${ACME_EMAIL:-admin@example.com}"
+      - "--certificatesresolvers.letsencrypt.acme.storage=/letsencrypt/acme.json"
+      - "--entrypoints.web.http.redirections.entrypoint.to=websecure"
+      - "--entrypoints.web.http.redirections.entrypoint.scheme=https"
+    ports:
+      - "80:80"
+      - "443:443"
+    networks:
+      - frontend
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - traefik-certificates:/letsencrypt
+    deploy:
+      replicas: 1
+      placement:
+        constraints:
+          - node.role == manager
+      labels:
+        - "traefik.enable=true"
+        - "traefik.http.routers.traefik-dashboard.rule=Host(`traefik.${DOMAIN:-outdoortracker.example.com}`)"
+        - "traefik.http.routers.traefik-dashboard.service=api@internal"
+        - "traefik.http.routers.traefik-dashboard.entrypoints=websecure"
+        - "traefik.http.routers.traefik-dashboard.tls.certresolver=letsencrypt"
+        - "traefik.http.routers.traefik-dashboard.middlewares=traefik-auth"
+        - "traefik.http.middlewares.traefik-auth.basicauth.users=${TRAEFIK_DASHBOARD_AUTH:-admin:$$apr1$$q8eZFHjF$$Fvmkk//V6Btlaf2i/ju5n/}"  # Default: admin/password
+    healthcheck:
+      test: ["CMD", "wget", "--spider", "--quiet", "http://localhost:8080/ping"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+volumes:
+  postgres_data:
+    driver: local
+  traefik-certificates:
+    driver: local
+
+networks:
+  frontend:
+    driver: overlay
+    attachable: true
+  backend:
+    driver: overlay
+    attachable: true

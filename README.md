@@ -139,26 +139,47 @@ outdoortracker/
 
 ## Production Deployment
 
-For production deployment on a Synology server:
+### Option 1: Docker Compose Deployment
 
-1. Set up Docker Swarm on your Synology:
-   ```bash
-   # Initialize Docker Swarm on the manager node (your Synology)
-   docker swarm init
-   ```
+For a simple production deployment using Docker Compose:
 
-2. Configure environment variables for production:
+1. Configure environment variables for production:
    ```bash
    # Create and edit the production .env file
    cp .env.example .env.prod
    # Edit the .env.prod file with your production settings
    ```
 
-3. Deploy the stack using the production Docker Compose file:
+2. Deploy using the production Docker Compose file:
    ```bash
-   # Deploy the stack to the swarm
-   docker stack deploy -c docker-compose.prod.yml --with-registry-auth outdoortracker
+   # Start all services in production mode
+   docker-compose -f docker-compose.prod.yml --env-file .env.prod up -d
    ```
+
+### Option 2: Docker Swarm Deployment
+
+For a scalable, production-ready deployment using Docker Swarm:
+
+1. Navigate to the deployment directory:
+   ```bash
+   cd deploy
+   ```
+
+2. Configure your deployment environment:
+   ```bash
+   # Create and edit the Swarm environment file
+   cp .env.swarm.example .env.swarm
+   # Edit with your production settings
+   nano .env.swarm
+   ```
+
+3. Run the deployment script:
+   ```bash
+   # Deploy to Docker Swarm
+   ./swarm-deploy.sh
+   ```
+
+For detailed instructions on Docker Swarm deployment, see [Swarm Deployment Guide](deploy/SWARM-DEPLOYMENT.md)
 
 4. Verify the deployment:
    ```bash
