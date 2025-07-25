@@ -120,7 +120,17 @@ jobs:
         cache-from: type=gha
         cache-to: type=gha,mode=max
     
-    - name: Test the built images
+    - name: Debug frontend image (nginx.conf and static files)
       run: |
-        docker image ls
-        # Add any additional image validation here
+        docker create --name debug-frontend outdoortracker-frontend:latest
+        echo '--- /etc/nginx/conf.d/ ---'
+        docker cp debug-frontend:/etc/nginx/conf.d/. .
+        ls -l ./default.conf || true
+        echo '--- /usr/share/nginx/html/ ---'
+        docker cp debug-frontend:/usr/share/nginx/html ./html || true
+        ls -l ./html || true
+        echo '--- nginx -t output ---'
+        docker start debug-frontend
+        docker exec debug-frontend nginx -t || true
+        docker logs debug-frontend || true
+        docker rm -f debug-frontend
