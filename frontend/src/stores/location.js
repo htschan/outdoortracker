@@ -27,8 +27,9 @@ export const useLocationStore = defineStore('location', {
         this.socket.disconnect()
       }
       
-      // Connect to WebSocket server with authentication
-      this.socket = io('/ws', {
+      // Use VITE_BACKEND_URL as base for socket connection
+      const wsBase = import.meta.env.VITE_BACKEND_URL || ''
+      this.socket = io(wsBase + '/ws', {
         auth: { token },
         transports: ['websocket']
       })
