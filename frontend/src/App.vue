@@ -6,6 +6,7 @@
         <router-link to="/map">Map</router-link>
         <router-link to="/profile">Profile</router-link>
         <router-link v-if="isAdmin" to="/admin/users">Manage Users</router-link>
+        <router-link to="/about">About</router-link>
         <a href="#" @click.prevent="logout">Logout</a>
       </nav>
     </header>
