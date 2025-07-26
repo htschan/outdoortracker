@@ -84,20 +84,19 @@ This script will guide you through setting up either a development or production
    docker-compose up -d
    ```
 
-5. Initialize the database with test users:
+5. Initialize the database and create users:
    ```bash
    docker-compose exec backend python init_db.py
    ```
+   You will be prompted to enter credentials for the admin and test user interactively.
 
 6. Access the application:
    - Frontend: http://localhost:8080
    - Backend API: http://localhost:5000/api
 
-### Default Admin Credentials
+### Admin and Test User Credentials
 
-After running the database initialization script, you can log in with:
-- Email: outdoortracker@sorawit.ch
-- Password: Axil&311
+When running the database initialization script (`init_db.py`), you will be prompted to enter the email, name, and password for both the admin and test user. No default credentials are set in the code for security reasons.
 
 ### Production Deployment
 
