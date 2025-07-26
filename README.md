@@ -257,3 +257,44 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 ```
+
+## Synology DSM 7.2 Reverse Proxy Setup
+
+To expose Outdoor Tracker securely on your domain using Synology DSM 7.2's built-in reverse proxy:
+
+1. **Open DSM Control Panel**
+   - Go to **Control Panel** > **Login Portal** > **Advanced** > **Reverse Proxy**.
+
+2. **Add a New Rule for the Frontend**
+   - Click **Create**.
+   - **Source**:
+     - Protocol: `HTTPS` (recommended)
+     - Hostname: `yourdomain.com` (or subdomain)
+     - Port: `443` (or another external port)
+   - **Destination**:
+     - Protocol: `HTTP`
+     - Hostname: `localhost` (or your Docker host IP)
+     - Port: `8080` (the frontend container port)
+   - Click **Save**.
+
+3. **Add a Rule for the Backend API (Optional, if you want direct API access)**
+   - Repeat the above, but set the destination port to `5000` and use a different source path or subdomain (e.g., `api.yourdomain.com`).
+
+4. **WebSocket Support**
+   - In the reverse proxy rule, click **Custom Header** and add:
+     - Name: `Upgrade`, Value: `$http_upgrade`
+     - Name: `Connection`, Value: `upgrade`
+   - This is required for real-time features (Socket.IO, WebSockets).
+
+5. **SSL/TLS**
+   - DSM can manage Let's Encrypt certificates for you. Go to **Control Panel** > **Security** > **Certificate** to add or renew certificates.
+   - Assign the certificate to your reverse proxy rule's domain.
+
+6. **Test Access**
+   - Visit `https://yourdomain.com` in your browser. You should see the Outdoor Tracker frontend.
+   - The backend API and WebSocket connections should work transparently through the proxy.
+
+**Notes:**
+- Make sure your Synology firewall allows inbound connections on the chosen ports.
+- If using Docker Swarm, ensure Traefik or Nginx is not also terminating SSL on the same ports, or use different ports for internal/external access.
+- For best results, use a subdomain (e.g., `tracker.yourdomain.com`) for Outdoor Tracker.
