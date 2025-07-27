@@ -1,5 +1,5 @@
 import { defineStore } from 'pinia'
-import api from '../utils/axios'
+import { getApi } from '../utils/axios'
 
 export const useAuthStore = defineStore('auth', {
   state: () => ({
@@ -16,11 +16,9 @@ export const useAuthStore = defineStore('auth', {
   actions: {
     async login(email, password) {
       try {
-        console.log('Attempting login with:', email);
+        const api = await getApi()
         const response = await api.post('/api/auth/login', { email, password })
-        console.log('Login response:', response.data);
         
-        // Verify we have a valid token
         if (!response.data.token) {
           throw new Error('No token returned from server');
         }
@@ -28,30 +26,24 @@ export const useAuthStore = defineStore('auth', {
         this.token = response.data.token
         localStorage.setItem('token', this.token)
         
-        // Double-check that token was stored correctly
         const storedToken = localStorage.getItem('token');
-        console.log('Token stored in localStorage:', storedToken);
-        
         if (!storedToken) {
-          console.error('Token was not stored in localStorage');
           throw new Error('Failed to store token');
         }
         
-        // Small delay to ensure token is set before next request
         await new Promise(resolve => setTimeout(resolve, 500));
         
-        // Fetch user details
         await this.fetchUserDetails()
         
         return { success: true }
       } catch (error) {
-        console.error('Login error:', error)
         return { success: false, error: error.response?.data?.message || error.message || 'Login failed' }
       }
     },
     
     async register(email, password, name) {
       try {
+        const api = await getApi()
         const response = await api.post('/api/auth/register', { email, password, name })
         return { success: true, message: response.data.message }
       } catch (error) {
@@ -61,11 +53,10 @@ export const useAuthStore = defineStore('auth', {
     
     async fetchUserDetails() {
       try {
-        // Try a direct fetch with the token
         const token = localStorage.getItem('token');
         
-        // Try with the API instance first
         try {
+          const api = await getApi()
           const response = await api.get('/api/users/me', {
             headers: { 'Authorization': `Bearer ${token}` }
           });
@@ -75,9 +66,7 @@ export const useAuthStore = defineStore('auth', {
           console.error('API instance fetch failed:', apiError);
           console.error('API Error response:', apiError.response?.data);
           
-          // Use VITE_BACKEND_URL or fallback to window.location.origin
           let baseUrl = import.meta.env.VITE_BACKEND_URL || window.location.origin;
-          // Ensure no trailing slash
           if (baseUrl.endsWith('/')) baseUrl = baseUrl.slice(0, -1);
           const directResponse = await fetch(`${baseUrl}/api/users/me`, {
             method: 'GET',
@@ -106,6 +95,7 @@ export const useAuthStore = defineStore('auth', {
     
     async verifyEmail(token) {
       try {
+        const api = await getApi()
         const response = await api.post('/api/auth/verify-email', { token })
         return { success: true, message: response.data.message }
       } catch (error) {

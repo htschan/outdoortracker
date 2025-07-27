@@ -126,7 +126,7 @@ import { ref, computed, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { useAuthStore } from '../stores/auth'
 import { useLocationStore } from '../stores/location'
-import api from '../utils/axios'
+import { getApi } from '../utils/axios'
 
 export default {
   name: 'ProfileView',
@@ -238,6 +238,7 @@ export default {
           return
         }
         
+        const api = await getApi()
         // Submit password change
         const response = await api.post('/api/users/change-password', {
           currentPassword: passwordForm.value.current,
