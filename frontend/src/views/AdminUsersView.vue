@@ -105,7 +105,7 @@
 import { ref, computed, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { useAuthStore } from '../stores/auth'
-import api from '../utils/axios'
+import { getApi } from '../utils/axios'
 
 export default {
   name: 'AdminUsersView',
@@ -134,6 +134,7 @@ export default {
       error.value = null
       
       try {
+        const api = await getApi()
         const response = await api.get('/api/admin/users')
         users.value = response.data
       } catch (err) {
@@ -178,6 +179,7 @@ export default {
       actionInProgress.value = true
       
       try {
+        const api = await getApi()
         const response = await api.put(`/api/admin/users/${userId}/approve`)
         
         // Update user in the list
@@ -199,6 +201,7 @@ export default {
       actionInProgress.value = true
       
       try {
+        const api = await getApi()
         const response = await api.put(`/api/admin/users/${userId}/toggle-active`)
         
         // Update user in the list
@@ -234,6 +237,7 @@ export default {
       actionInProgress.value = true
       
       try {
+        const api = await getApi()
         await api.delete(`/api/admin/users/${userToDelete.value.id}`)
         
         // Remove user from the list

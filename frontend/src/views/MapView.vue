@@ -35,7 +35,7 @@
 import { ref, onMounted, onUnmounted, computed } from 'vue'
 import { useLocationStore } from '../stores/location'
 import { useAuthStore } from '../stores/auth'
-import api from '../utils/axios'
+import { getApi } from '../utils/axios'
 import 'leaflet/dist/leaflet.css'
 
 // Need to import these separately due to how Leaflet works with bundlers
@@ -93,6 +93,7 @@ export default {
     const fetchActiveUsers = async () => {
       try {
         // Using our configured API instance that handles authentication
+        const api = await getApi()
         const response = await api.get('/api/users/active')
         activeUsers.value = response.data
       } catch (error) {
