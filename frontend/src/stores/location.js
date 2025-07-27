@@ -1,9 +1,19 @@
 import { defineStore } from 'pinia'
-import api from '../utils/axios'
 import { io } from 'socket.io-client'
 
-// Log the API base URL for debugging
-console.log('API base URL:', import.meta.env.VITE_BACKEND_URL || window.location.origin)
+// Global config object
+let runtimeConfig = { backendUrl: '' }
+
+// Load config from /frontend_config.json at startup
+const configPromise = fetch('/frontend_config.json')
+  .then(res => res.ok ? res.json() : {})
+  .then(cfg => {
+    runtimeConfig = cfg
+    console.log('Loaded runtime config:', runtimeConfig)
+  })
+  .catch(e => {
+    console.error('Error loading frontend_config.json:', e)
+  })
 
 export const useLocationStore = defineStore('location', {
   state: () => ({
@@ -25,12 +35,13 @@ export const useLocationStore = defineStore('location', {
   },
   
   actions: {
-    initializeSocket(token) {
+    async initializeSocket(token) {
+      await configPromise
       if (this.socket) {
         this.socket.disconnect()
       }
       // Use VITE_BACKEND_URL as base for socket connection
-      const wsBase = import.meta.env.VITE_BACKEND_URL || ''
+      const wsBase = runtimeConfig.backendUrl || ''
       this.socket = io(wsBase + '/ws', {
         auth: { token },
         transports: ['websocket']
@@ -125,16 +136,23 @@ export const useLocationStore = defineStore('location', {
     },
     
     async sendPositionViaApi() {
+      await configPromise
       if (!this.currentPosition) return
       
       try {
         const { lat, lng, accuracy, timestamp } = this.currentPosition
-        await api.post('/api/locations', {
-          lat, 
-          lng, 
-          accuracy,
-          timestamp
+        // Use fetch to demonstrate runtime config usage
+        const url = (runtimeConfig.backendUrl || '') + '/api/locations'
+        const token = localStorage.getItem('token')
+        const res = await fetch(url, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            ...(token ? { 'Authorization': `Bearer ${token}` } : {})
+          },
+          body: JSON.stringify({ lat, lng, accuracy, timestamp })
         })
+        if (!res.ok) throw new Error('Network error')
       } catch (error) {
         console.error('Failed to send location via API:', error)
       }
