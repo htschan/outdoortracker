@@ -1,8 +1,18 @@
 import axios from 'axios';
 
+// Determine base URL for API
+let baseURL = '';
+if (import.meta.env.VITE_BACKEND_URL) {
+  baseURL = import.meta.env.VITE_BACKEND_URL;
+  // Remove trailing slash if present
+  if (baseURL.endsWith('/')) baseURL = baseURL.slice(0, -1);
+} else {
+  baseURL = window.location.origin;
+}
+
 // Create Axios instance with configuration
 const api = axios.create({
-  baseURL: '', // Use relative URL for API calls
+  baseURL: baseURL, // Use env or origin for API calls
   timeout: 10000,
   headers: {
     'Content-Type': 'application/json',
