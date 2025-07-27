@@ -2,6 +2,9 @@ import { defineStore } from 'pinia'
 import api from '../utils/axios'
 import { io } from 'socket.io-client'
 
+// Log the API base URL for debugging
+console.log('API base URL:', import.meta.env.VITE_BACKEND_URL || window.location.origin)
+
 export const useLocationStore = defineStore('location', {
   state: () => ({
     currentPosition: null,
