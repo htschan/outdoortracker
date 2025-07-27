@@ -61,8 +61,6 @@ export const useAuthStore = defineStore('auth', {
     
     async fetchUserDetails() {
       try {
-        console.log('Fetching user details, token in localStorage:', localStorage.getItem('token'));
-        
         // Try a direct fetch with the token
         const token = localStorage.getItem('token');
         
@@ -71,7 +69,6 @@ export const useAuthStore = defineStore('auth', {
           const response = await api.get('/api/users/me', {
             headers: { 'Authorization': `Bearer ${token}` }
           });
-          console.log('User details response from API instance:', response.data);
           this.user = response.data;
           return { success: true };
         } catch (apiError) {

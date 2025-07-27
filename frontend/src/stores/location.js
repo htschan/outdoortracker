@@ -26,24 +26,20 @@ export const useLocationStore = defineStore('location', {
       if (this.socket) {
         this.socket.disconnect()
       }
-      
       // Use VITE_BACKEND_URL as base for socket connection
       const wsBase = import.meta.env.VITE_BACKEND_URL || ''
       this.socket = io(wsBase + '/ws', {
         auth: { token },
         transports: ['websocket']
       })
-      
       this.socket.on('connect', () => {
         console.log('Socket connected')
       })
-      
       // Listen for location updates from other users
       this.socket.on('location_update', (data) => {
         const { userId, lat, lng, timestamp } = data
         this.userLocations[userId] = { lat, lng, timestamp }
       })
-      
       this.socket.on('disconnect', () => {
         console.log('Socket disconnected')
       })
