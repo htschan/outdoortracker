@@ -75,8 +75,11 @@ export const useAuthStore = defineStore('auth', {
           console.error('API instance fetch failed:', apiError);
           console.error('API Error response:', apiError.response?.data);
           
-          // If that fails, try a direct fetch to simulate what's happening
-          const directResponse = await fetch('http://localhost:5000/api/users/me', {
+          // Use VITE_BACKEND_URL or fallback to window.location.origin
+          let baseUrl = import.meta.env.VITE_BACKEND_URL || window.location.origin;
+          // Ensure no trailing slash
+          if (baseUrl.endsWith('/')) baseUrl = baseUrl.slice(0, -1);
+          const directResponse = await fetch(`${baseUrl}/api/users/me`, {
             method: 'GET',
             headers: {
               'Content-Type': 'application/json',
@@ -89,7 +92,6 @@ export const useAuthStore = defineStore('auth', {
           }
           
           const userData = await directResponse.json();
-          console.log('User details from direct fetch:', userData);
           this.user = userData;
           return { success: true };
         }
