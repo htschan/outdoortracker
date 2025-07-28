@@ -4,12 +4,17 @@ from flask_socketio import SocketIO
 from flask_jwt_extended import JWTManager
 from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
+from datetime import datetime
 
 # Initialize extensions
 db = SQLAlchemy()
 migrate = Migrate()
 jwt = JWTManager()
 socketio = SocketIO()
+
+def log_api_call():
+    if request.path.startswith('/api/'):
+        print(f"[{datetime.utcnow().isoformat()}] API call: {request.method} {request.path} from {request.remote_addr}")
 
 def create_app(config_object=None):
     """Application factory pattern"""
@@ -67,5 +72,7 @@ def create_app(config_object=None):
     # Create database tables if they don't exist (development only)
     with app.app_context():
         db.create_all()
+    
+    app.before_request(log_api_call)
     
     return app
