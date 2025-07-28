@@ -73,6 +73,19 @@ def create_app(config_object=None):
     with app.app_context():
         db.create_all()
     
+    # Add before_request handler for logging
     app.before_request(log_api_call)
+
+    # Add a global handler for OPTIONS requests to ensure CORS preflight is handled
+    @app.before_request
+    def handle_options():
+        if request.method == 'OPTIONS' and request.path.startswith('/api/'):
+            response = app.make_default_options_response()
+            headers = response.headers
+            headers['Access-Control-Allow-Origin'] = '*'
+            headers['Access-Control-Allow-Methods'] = 'GET, POST, PUT, DELETE, OPTIONS'
+            headers['Access-Control-Allow-Headers'] = 'Content-Type, Authorization'
+            headers['Access-Control-Allow-Credentials'] = 'true'
+            return response
     
     return app
