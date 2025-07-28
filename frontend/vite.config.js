@@ -19,6 +19,7 @@ export default defineConfig({
         short_name: 'OTracker',
         description: 'Track your outdoor activities in real-time',
         theme_color: '#4DBA87',
+        display: 'standalone',
         icons: [
           {
             src: 'pwa-192x192.png',
