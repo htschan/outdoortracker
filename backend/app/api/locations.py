@@ -8,7 +8,7 @@ from app import db, socketio
 
 locations_bp = Blueprint('locations', __name__)
 
-@locations_bp.route('/', methods=['POST'])
+@locations_bp.route('', methods=['POST'])
 @jwt_required()
 def add_location():
     """Add a new location for the current user"""
