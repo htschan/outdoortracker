@@ -3,6 +3,8 @@ import { io } from 'socket.io-client'
 
 // Global config object
 let runtimeConfig = { backendUrl: '' }
+const fallbackUrl = "http://localhost:5000"
+
 
 // Load config from /frontend_config.json at startup
 const configPromise = fetch('/frontend_config.json')
@@ -41,7 +43,7 @@ export const useLocationStore = defineStore('location', {
         this.socket.disconnect()
       }
       // Use VITE_BACKEND_URL as base for socket connection
-      const wsBase = runtimeConfig.backendUrl || ''
+      const wsBase = runtimeConfig.backendUrl || fallbackUrl
       this.socket = io(wsBase + '/ws', {
         auth: { token },
         transports: ['websocket']
