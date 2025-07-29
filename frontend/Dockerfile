@@ -31,6 +31,13 @@ RUN npm install
 COPY . .
 
 # Build the Vue.js application for production
+ARG VITE_BUILD_TIME
+ARG VITE_GIT_SHA
+ENV VITE_BUILD_TIME=$VITE_BUILD_TIME
+ENV VITE_GIT_SHA=$VITE_GIT_SHA
+RUN npm run build
+
+# Build the Vue.js application for production
 RUN npm run build
 
 # Production stage
