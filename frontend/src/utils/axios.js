@@ -2,7 +2,6 @@ import axios from 'axios';
 
 // Global config object
 let runtimeConfig = { backendUrl: '' }
-let configLoaded = false
 let configPromise = null
 
 function loadConfig() {
@@ -11,12 +10,10 @@ function loadConfig() {
       .then(res => res.ok ? res.json() : {})
       .then(cfg => {
         runtimeConfig = cfg
-        configLoaded = true
         console.log('Loaded runtime config:', runtimeConfig)
       })
       .catch(e => {
         console.error('Error loading frontend_config.json:', e)
-        configLoaded = true
       })
   }
   return configPromise
