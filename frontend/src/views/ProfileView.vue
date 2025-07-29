@@ -240,7 +240,7 @@ export default {
         
         const api = await getApi()
         // Submit password change
-        const response = await api.post('/api/users/change-password', {
+        await api.post('/api/users/change-password', {
           currentPassword: passwordForm.value.current,
           newPassword: passwordForm.value.new
         }, {
