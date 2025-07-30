@@ -3,6 +3,7 @@ import axios from 'axios';
 // Global config object
 let runtimeConfig = { backendUrl: '' }
 let configPromise = null
+const fallbackUrl = "http://localhost:5000"
 
 function loadConfig() {
   if (!configPromise) {
@@ -13,7 +14,7 @@ function loadConfig() {
         console.log('Loaded runtime config:', runtimeConfig)
       })
       .catch(e => {
-        console.error('Error loading frontend_config.json:', e)
+        console.log(`No frontend_config.json found, using fallback ${fallbackUrl} e: ${e}`)
       })
   }
   return configPromise
@@ -22,7 +23,8 @@ function loadConfig() {
 // Returns a ready-to-use Axios instance after config is loaded
 export async function getApi() {
   await loadConfig()
-  let baseURL = runtimeConfig.backendUrl || window.location.origin
+  let baseURL = runtimeConfig.backendUrl || fallbackUrl
+  console.log(`backend Url ${baseURL}`)
   if (baseURL.endsWith('/')) baseURL = baseURL.slice(0, -1)
   const api = axios.create({
     baseURL: baseURL,
