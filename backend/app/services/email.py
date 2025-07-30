@@ -87,7 +87,7 @@ def send_email(to_email, subject, html_content):
 def send_verification_email(to_email, token):
     """Send email verification link"""
     # In a real app, we would use a proper frontend URL
-    verification_url = f"{request.host_url.rstrip('/')}/verify-email/{token}"
+    verification_url = f"{request.host_url.rstrip('/')}/api/auth/verify-email/{token}"
     
     # Log verification details if debug_email is enabled
     if current_app.config.get('DEBUG_EMAIL', False):
