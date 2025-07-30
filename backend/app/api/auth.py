@@ -111,34 +111,52 @@ def test_token():
     except Exception as e:
         return jsonify({'message': 'Token validation failed', 'error': str(e)}), 401
 
-@auth_bp.route('/verify-email', methods=['POST'])
-def verify_email():
-    """Verify user email with token"""
+# @auth_bp.route('/verify-email', methods=['POST'])
+# def verify_email():
+#     """Verify user email with token"""
+#     try:
+#         token = request.json.get('token', None)
+        
+#         if not token:
+#             return jsonify({'message': 'No verification token provided'}), 400
+        
+#         # Find user with this token
+#         user = User.query.filter_by(verification_token=token).first()
+        
+#         if not user:
+#             return jsonify({'message': 'Invalid verification token'}), 400
+        
+#         # Check if token has expired
+#         if user.token_expiry < datetime.datetime.utcnow():
+#             return jsonify({'message': 'Verification token has expired'}), 400
+        
+#         # Mark user as verified
+#         user.is_verified = True
+#         user.verification_token = None
+#         user.token_expiry = None
+        
+#         db.session.commit()
+        
+#         return jsonify({'message': 'Email verified successfully. Your account is now pending admin approval.'}), 200
+        
+#     except Exception as e:
+#         db.session.rollback()
+#         return jsonify({'message': 'Email verification failed', 'error': str(e)}), 500
+
+@auth_bp.route('/verify-email/<token>', methods=['GET'])
+def verify_email_token(token):
+    """Public GET endpoint for email verification links"""
     try:
-        token = request.json.get('token', None)
-        
-        if not token:
-            return jsonify({'message': 'No verification token provided'}), 400
-        
-        # Find user with this token
         user = User.query.filter_by(verification_token=token).first()
-        
         if not user:
-            return jsonify({'message': 'Invalid verification token'}), 400
-        
-        # Check if token has expired
+            return "<h2>Invalid verification token.</h2>", 400
         if user.token_expiry < datetime.datetime.utcnow():
-            return jsonify({'message': 'Verification token has expired'}), 400
-        
-        # Mark user as verified
+            return "<h2>Verification token has expired.</h2>", 400
         user.is_verified = True
         user.verification_token = None
         user.token_expiry = None
-        
         db.session.commit()
-        
-        return jsonify({'message': 'Email verified successfully. Your account is now pending admin approval.'}), 200
-        
+        return "<h2>Email verified successfully. Your account is now pending admin approval.</h2>", 200
     except Exception as e:
         db.session.rollback()
-        return jsonify({'message': 'Email verification failed', 'error': str(e)}), 500
+        return f"<h2>Email verification failed: {str(e)}</h2>", 500
